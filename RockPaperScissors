@@ -1,0 +1,96 @@
+using System;
+string repeat = "yes";
+while (repeat == "yes")
+{
+    string p1 = "";
+    string p2 = "";
+    int p1score = 0;
+    int p2score = 0;
+
+    Console.WriteLine("PvP or CvP?");
+    string mode = Console.ReadLine();
+
+    if (mode == "PvP")
+    {
+        p1 = "";
+        p2 = "";
+
+        while (p1 != "rock" && p1 != "scissors" && p1 != "paper")
+        {
+            Console.WriteLine("Player one enter rock/paper/scissors: ");
+            p1 = Console.ReadLine();
+        }
+        while (p2 != "rock" && p2 != "scissors" && p2 != "paper")
+        {
+            Console.Clear();
+            Console.WriteLine("Player two enter rock/paper/scissors: ");
+            p2 = Console.ReadLine();
+        }
+    }
+    else
+    {
+
+        p1 = "";
+        while (p1 != "rock" && p1 != "scissors" && p1 != "paper")
+        {
+            Console.WriteLine("Player one enter rock/paper/scissors: ");
+            p1 = Console.ReadLine();
+        }
+
+        Random rnd = new Random();
+        int RNG = rnd.Next(1, 4);
+        RNG = rnd.Next(1, 4);
+        if (RNG == 1)
+        {
+            p2 = "rock";
+        }
+        else if (RNG == 2)
+        {
+            p2 = "paper";
+        }
+        else
+        {
+            p2 = "scissors";
+        }
+    }
+    if (p1 == p2) 
+    {
+        Console.WriteLine("Draw");
+    }
+    else if (p1 == "rock")
+    {
+        if (p2 == "paper")
+        {
+            Console.WriteLine("p2 wins");
+            p2score += 1;
+        }
+        else if (p2 == "scissors")
+        {
+            Console.WriteLine("p1 wins");
+        }
+    }
+    else if (p1 == "scissors")
+    {
+        if (p2 == "paper")
+        {
+            Console.WriteLine("p1 wins");
+        }
+        else if (p2 == "rock")
+        {
+            Console.WriteLine("p2 wins");
+        }
+    }
+    else
+    {
+        if (p2 == "rock")
+        {
+            Console.WriteLine("p1 wins");
+        }
+        else if (p2 == "scissors")
+        {
+            Console.WriteLine("p2 wins");
+        }
+    }
+    Console.WriteLine("Do you want to play again? ");
+    repeat = Console.ReadLine();
+}
