@@ -1,25 +1,364 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.11.35327.3
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventureGame1", "AdventureGame1\AdventureGame1.csproj", "{BE9991D9-D68C-48A5-B9D1-DF27C4AC032B}"
-EndProject
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Any CPU = Debug|Any CPU
-		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BE9991D9-D68C-48A5-B9D1-DF27C4AC032B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BE9991D9-D68C-48A5-B9D1-DF27C4AC032B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BE9991D9-D68C-48A5-B9D1-DF27C4AC032B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BE9991D9-D68C-48A5-B9D1-DF27C4AC032B}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {165B0DCE-98D2-4A06-ADC5-EE32FB671AE6}
-	EndGlobalSection
-EndGlobal
+using System;
+using System.Diagnostics;
+using System.Media;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.CodeDom;
+
+namespace AdventureGame1
+{
+    internal class Program
+    {
+        static async Task Main(string[] args)
+        {
+           bool play = true;
+            do
+            {
+
+                //startup sequence
+                //set appearance of title screen
+                int width = Console.WindowWidth;
+                int height = Console.WindowHeight;
+                width /= 2;
+                width -= 15;
+                height /= 2;
+                height -= 2;
+                Console.BackgroundColor = ConsoleColor.DarkGray;
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.SetCursorPosition(width, height);
+                Console.WriteLine("MARS INVASION");
+                Console.SetCursorPosition(width, height + 2);
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine("Press Enter To Continue");
+                //set intro music
+                SoundPlayer player = new SoundPlayer(@"C:\Users\charl\Documents\doom\doom-intro.wav");
+                player.Load();
+                player.Play();
+                while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
+                Console.Clear();
+                //set background music
+                _ = Task.Run(() => PlayMusicLoop(@"C:\Users\charl\Documents\doom\doom-eternal.wav"));
+
+                //array of items currently in rucksack
+                List<string> rucksack = new List<string> { "  A torch", "  A banana", "  A pistol", "  A coat" };
+
+                //start screen
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.WriteLine("YOU ARE A SPACE MARINE WHO IS ON A MILITARY BASE ON MARS. THE BASE HAS BEEN INVADED BY EVIL ALIENS. YOUR TASK IS TO STAY ALIVE AND GET OUT.");
+                Console.WriteLine("YOU HAVE A RUCKSACK CONTAINING: ");
+                for (int i = 0; i < rucksack.Count; i++)
+                {
+                    Console.WriteLine(rucksack[i]);
+                }
+                bool lvl1 = true;
+                bool lvl2 = true;
+                bool lvl3 = true;
+                bool lvl4 = true;
+                bool final = true;
+
+                //level 1
+                while (lvl1 == true)
+                {
+                    //bedroom
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine();
+                    Console.WriteLine("YOU ARE IN YOUR ROOM, PRESS 'E' TO LOOK AROUND , PRESS 'W' TO GO INTO THE HALLWAY");
+                    ConsoleKeyInfo bedroomKey = Console.ReadKey(true);
+
+                    //if E is pressed start treasure chest sequence
+                    if (bedroomKey.Key == ConsoleKey.E)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.WriteLine("YOU FIND A TREASURE CHEST.");
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.WriteLine("PRESS A NUMBER FROM 0-5 TO UNLOCK IT.");
+                        ConsoleKeyInfo chestKey = Console.ReadKey(true);
+                        int chest;
+
+                        //set input to invalid if not a digit
+                        if (char.IsDigit(chestKey.KeyChar))
+                        {
+                            chest = int.Parse(chestKey.KeyChar.ToString());
+                        }
+                        else
+                        {
+                            chest = 9;
+                        }
+
+                        //determine what you get from the chest
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        switch (chest)
+                        {
+                            case 0:
+                                Console.WriteLine("YOU GOT A BOTTLE OF WATER");
+                                rucksack.Add("  A water bottle");
+                                break;
+                            case 1:
+                                Console.WriteLine("YOU GOT A SWORD");
+                                rucksack.Add("  A sword");
+                                break;
+                            case 2:
+                                Console.WriteLine("YOU GOT A BLASTER");
+                                rucksack.Add("  A blaster");
+                                break;
+                            case 3:
+                                Console.WriteLine("YOU GOT A CHEESE SANDWICH");
+                                rucksack.Add("  A cheese sandwich");
+                                break;
+                            case 4:
+                                Console.WriteLine("YOU GOT A FIRST AID KIT");
+                                rucksack.Add("  A first aid kit");
+                                break;
+                            case 5:
+                                Console.WriteLine("YOU GOT A HAT");
+                                rucksack.Add("  A hat");
+                                break;
+                            default:
+                                Console.WriteLine("INCORRECT INPUT");
+                                Console.WriteLine("YOU GOT A ROTTEN APPLE");
+                                rucksack.Add("  A rotten apple");
+                                break;
+                        }
+                    }
+                    //progress to level 2
+                    else if (bedroomKey.Key == ConsoleKey.W)
+                    {
+                        lvl1 = false;
+                    }
+                }
+
+                //level 2
+                while (lvl2 == true)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine();
+                    Console.WriteLine("YOUR RUCKSACK NOW CONTAINS: ");
+                    for (int i = 0; i < rucksack.Count; i++)
+                    {
+                        Console.WriteLine(rucksack[i]);
+                    }
+                    //hallway
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine();
+                    Console.WriteLine("YOU ARE IN THE HALLWAY, PRESS 'E' TO LOOK AROUND , PRESS 'W' TO GO INTO THE KITCHEN");
+                    ConsoleKeyInfo hallwayKey = Console.ReadKey(true);
+                    //if E is pressed, start hallway sequence
+                    if (hallwayKey.Key == ConsoleKey.E)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.WriteLine("THERE IS A BOX, A PAINTING AND A TRAIL OF BLOOD LEADING TO A CUPBOARD");
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.WriteLine("PRESS 'B' FOR THE BOX, 'P' FOR THE PAINTING AND 'T' FOR THE TRAIL OF BLOOD");
+                        ConsoleKeyInfo choiceKey = Console.ReadKey(true);
+                        //end game if B pressed
+                        if (choiceKey.Key == ConsoleKey.B)
+                        {
+                            lvl2 = false;
+                            Console.ForegroundColor = ConsoleColor.DarkRed;
+                            Console.WriteLine("YOU OPENED THE BOX RELEASING POISON GAS. YOU DIED");
+                            Console.WriteLine("GAME OVER!");
+                            //loop game
+                            Console.ForegroundColor = ConsoleColor.Blue;
+                            Console.WriteLine();
+                            Console.WriteLine("TYPE 'Y' TO PLAY AGAIN, PRESS ANY OTHER KEY TO END GAME");
+                            ConsoleKeyInfo replayKey = Console.ReadKey(true);
+                            if (replayKey.Key == ConsoleKey.Y)
+                            {
+                                play = true;
+                                lvl3 = false;
+                                lvl4 = false;
+                                final = false;
+                            }
+                            else
+                            {
+                                play = false;
+                                lvl3 = false;
+                                lvl4 = false;
+                                final = false;
+                            }
+                        }
+                        else if (choiceKey.Key == ConsoleKey.P)
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkRed;
+                            Console.WriteLine();
+                            Console.WriteLine("THE PAINTING IS OF EARTH. YOU FEEL HOMESICK BUT NOW HAVE A RENEWED SENSE OF DETERMINATION TO GET OUT.");
+                        }
+                        else if (choiceKey.Key == ConsoleKey.T)
+                        {
+                            Console.ForegroundColor = ConsoleColor.DarkRed;
+                            Console.WriteLine();
+                            Console.WriteLine("YOU APPROACH THE CUPBOARD CAREFULLY AND SLOWLY OPEN IT, EXPECTING TO FIND A MONSTER, INSTEAD YOU FIND 20 CANS OF TOMATO SOUP! YOU EAT 19 CANS AND PUT 1 IN YOUR RUCKSACK, NOW YOU HAVE LOTS OF ENERGY TO GO ON.");
+                            rucksack.Add("  a can of tomato soup");
+                        }
+                    }
+                    //progress to level 3
+                    else if (hallwayKey.Key == ConsoleKey.W)
+                    {
+                        lvl2 = false;
+                    }
+                }
+
+                while (lvl3 == true)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine();
+                    Console.WriteLine("YOUR RUCKSACK NOW CONTAINS: ");
+                    for (int i = 0; i < rucksack.Count; i++)
+                    {
+                        Console.WriteLine(rucksack[i]);
+                    }
+                    //kitchen
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine();
+                    Console.WriteLine("YOU ENTER THE KITCHEN. THERE IS A MONSTER INFRONT OF YOU EATING A SANDWICH. IT SEES YOU AND STARTS SLIDING TOWARDS YOU");
+                    Console.WriteLine("THERE ARE SOME OBJECTS ON THE TABLE (T) NEXT TO YOU: A KNIFE (K), A SLICE OF CHEESE (C), A PENCIL (P), A LIVE CHICKEN (L) AND A BALLOON (B)");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine("PICK ONE OBJECT AND PRESS THE CORRESPONDING LETTER TO THROW IT AT THE MONSTER");
+                    ConsoleKeyInfo objectKey = Console.ReadKey(true);
+                    //fight monster
+                    if (objectKey.Key == ConsoleKey.T)
+                    {
+                        lvl3 = false;
+                        Console.WriteLine("YOU THOUGHT YOU WERE BEING CLEVER BY THROWING THE TABLE. YOU WEREN'T. THE MONSTER CATCHES IT, EATS THE TABLE, THE EATS YOU.");
+                        Console.WriteLine("GAME OVER!");
+                        //loop game
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.WriteLine();
+                        Console.WriteLine("TYPE 'Y' TO PLAY AGAIN, PRESS ANY OTHER KEY TO END GAME");
+                        ConsoleKeyInfo replayKey = Console.ReadKey(true);
+                        if (replayKey.Key == ConsoleKey.Y)
+                        {
+                            play = true;
+                            lvl4 = false;
+                            final = false;
+                        }
+                        else
+                        {
+                            play = false;
+                            lvl4 = false;
+                            final = false;
+                        }
+                    }
+                    else if (objectKey.Key == ConsoleKey.K)
+                    {
+                        lvl3 = false;
+                        Console.WriteLine("YOU THINK THE KNIFE WILL SCARE THE MONSTER AWAY. TURNS OUT THE MONSTER IS MADE OF JELLY, THE KNIFE DOES NO DAMAGE BUT THE MONSTER GETS ANNOYED AND EATS YOU.");
+                        Console.WriteLine("GAME OVER!");
+                        //loop game
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                        Console.WriteLine();
+                        Console.WriteLine("TYPE 'Y' TO PLAY AGAIN, PRESS ANY OTHER KEY TO END GAME");
+                        ConsoleKeyInfo replayKey = Console.ReadKey(true);
+                        if (replayKey.Key == ConsoleKey.Y)
+                        {
+                            play = true;
+                            lvl4 = false;
+                            final = false;
+                        }
+                        else
+                        {
+                            play = false;
+                            lvl4 = false;
+                            final = false;
+                        }
+                    }
+                    else if (objectKey.Key == ConsoleKey.L)
+                    {
+                        lvl3 = false;
+                        bool contains = rucksack.Contains("  A hat");
+                        if (contains == true)
+                        {
+                            Console.WriteLine("THE CHICKEN SAILS THROUGH THE AIR AND HITS THE MONSTER ON THE HEAD. TURNS OUT THE CHICKEN IS THE MONSTERS PET. IT IS VERY ANGRY THAT YOU THREW ITS PET CHICKEN.");
+                            Console.WriteLine("HOWEVER, YOU HAVE A HAT IN YOUR RUCKSACK. YOU GIVE THE MONSTER YOUR HAT AND IT FEELS SO PRETTY THAT IT FORGETS YOU JUST THREW ITS CHICKEN. YOU GO ON INTO THE NEXT ROOM");
+                            bool removed = rucksack.Remove("  A hat");
+                        }
+                        else
+                        {
+                            Console.WriteLine("THE CHICKEN SAILS THROUGH THE AIR AND HITS THE MONSTER ON THE HEAD. TURNS OUT THE CHICKEN IS THE MONSTERS PET. IT IS VERY ANGRY THAT YOU THREW ITS PET CHICKEN. IT EATS YOU.");
+                            Console.WriteLine("GAME OVER!");
+                            //loop game
+                            Console.ForegroundColor = ConsoleColor.Blue;
+                            Console.WriteLine();
+                            Console.WriteLine("TYPE 'Y' TO PLAY AGAIN, PRESS ANY OTHER KEY TO END GAME");
+                            ConsoleKeyInfo replayKey = Console.ReadKey(true);
+                            if (replayKey.Key == ConsoleKey.Y)
+                            {
+                                play = true;
+                                lvl4 = false;
+                                final = false;
+                            }
+                            else
+                            {
+                                play = false;
+                                lvl4 = false;
+                                final = false;
+                            }
+                        }
+                    }
+                    else if (objectKey.Key == ConsoleKey.C)
+                    {
+                        Console.WriteLine("THE MONSTER CATCHES THE CHEESE, PUTS IT IN THE SANDWICH AND EATS IT. IT ENJOYS THE IMPROVED SANDWICH SO LETS YOU GO INTO THE NEXT ROOM");
+                        lvl3 = false;
+                    }
+                    else if (objectKey.Key == ConsoleKey.P)
+                    {
+                        Console.WriteLine("THE MONSTER CATCHES THE PENCIL AND STARTS DRAWING WITH IT. WHILE IT IS DISTRACTED, YOU SNEAK PAST AND INTO THE NEXT ROOM.");
+                        lvl3 = false;
+                    }
+                    else if (objectKey.Key == ConsoleKey.B)
+                    {
+                        Console.WriteLine("THE MONSTER SEES THE BALLOON AND GETS VERY SCARED BECAUSE IT HAS NEVER SEEN A BALLOON BEFORE AND THINKS IT IS A NEW WEAPON. IT HIDES IN A CORNER SO YOU LEAVE THE KITCHEN ANDGO INTO THE NEXT ROOM");
+                        lvl3 = false;
+                    }
+                }
+
+                while (lvl4 == true)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.WriteLine();
+                    Console.WriteLine("YOUR RUCKSACK NOW CONTAINS: ");
+                    for (int i = 0; i < rucksack.Count; i++)
+                    {
+                        Console.WriteLine(rucksack[i]);
+                    }
+                    //
+                    //Console.WriteLine("level 4");
+                    lvl4 = false;
+                }
+                while (final  == true)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("WELL DONE, YOU SURVIVED AND MADE IT TO THE END. NOW YOU CAN GET INTO A ROCKET AND GO HOME TO EARTH.");
+                    //loop game
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.WriteLine();
+                    Console.WriteLine("TYPE 'Y' TO PLAY AGAIN, PRESS ANY OTHER KEY TO END GAME");
+                    ConsoleKeyInfo replayKeyfinal = Console.ReadKey(true);
+                    if (replayKeyfinal.Key == ConsoleKey.Y)
+                    {
+                        play = true;
+                        final = false;
+                    }
+                    else
+                    {
+                        play = false;
+                        final = false;
+                    }
+                }
+            }
+            while (play == true);
+        }
+        static async Task PlayMusicLoop(string filepath)
+        {
+            using (SoundPlayer player = new SoundPlayer(filepath))
+            {
+                while (true)
+                {
+                    player.PlaySync();
+                }
+            }
+        }
+    }
+}
