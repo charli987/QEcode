@@ -1,0 +1,280 @@
+using System; //using System.Collections.Generic; //using System.Data.Common; //using System.Linq; //using System.Security.Cryptography; //using System.Text; //using System.Threading.Tasks;
+using System.Data.Common;
+using System.Threading;
+namespace Battleships
+{
+    internal class Program
+    {
+        static string[,] board1 = new string[10, 10];
+        static string[,] board2 = new string[10, 10];
+        static string[,] sample1 = new string[10, 10];
+        static string[,] sample2 = new string[10, 10];
+        static int row, column;
+        static void Main(string[] args)
+        {
+            bool play = true, p1win = false, p2win = false;
+            while (play == true) //loop
+            {
+                //title screen
+                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                Console.Clear();
+                Console.SetCursorPosition((Console.WindowWidth / 2 - 5), (Console.WindowHeight / 2 - 5));
+                Console.WriteLine("BATTLESHIPS");
+                Console.SetCursorPosition((Console.WindowWidth / 2 - 8), (Console.WindowHeight / 2 - 3));
+                Console.WriteLine("press enter to play");
+                Console.SetCursorPosition(0, 0);
+                while (Console.ReadKey(true).Key != ConsoleKey.Enter) { }
+                Console.Clear();
+
+                //board 1 setup
+                MakeBoard(ref board1);
+                MakeBoard(ref sample1);
+                Console.Clear();
+                Console.WriteLine("Player1, place your ships");    //place ships
+                for (int i = 6; i >= 2; i--)
+                {
+                    MakeShip(i, ref board1);
+                }
+                Console.WriteLine("Here is your completed board player1");    //display
+                PrintBoard(ref board1);
+                Thread.Sleep(2000);
+                Console.Clear();
+
+                //board 2 setup
+                MakeBoard(ref board2);
+                MakeBoard(ref sample2);
+                Console.WriteLine("Player2, place your ships");    //place ships
+                for (int j = 6; j >= 2; j--)
+                {
+                    MakeShip(j, ref board2);
+                }
+                Console.WriteLine("Here is your completed board player2");    //display
+                PrintBoard(ref board2);
+                Thread.Sleep(2000);
+                Console.Clear();
+
+                //play game
+                do
+                {
+                    PrintBoard(ref sample2);
+                    AttackShip(ref board2, ref sample2);
+                    Thread.Sleep(2000);
+                    PrintBoard(ref sample1);
+                    AttackShip(ref board1, ref sample1);
+                    p1win = true;
+                    p2win = true;
+                    for (row = 0; row < 10; row++)
+                    {
+                        for (column = 0; column < 10; column++)
+                        {
+                            if (board2[row, column] != ".  " && board2[row, column] != "X  ") p1win = false;
+                            if (board1[row, column] != ".  " && board1[row, column] != "X  ") p2win = false;
+                        }
+                    }
+                } while (p1win == false && p2win == false);
+                PrintBoard(ref board1);
+                PrintBoard(ref board2);
+                if (p1win) Console.WriteLine("player 1 won!");
+                if (p2win) Console.WriteLine("player 2 won!");
+
+                Console.WriteLine("Do you want to play again? (enter y for yes, press any other key to exit"); // loop
+                ConsoleKeyInfo repeat = Console.ReadKey(true);
+                if (repeat.Key != ConsoleKey.Y)
+                {
+                    play = false;
+                }
+            }
+        }
+        static void MakeBoard(ref string[,] board)
+        {
+            for (row = 0; row < 10; row++)    //set base
+            {
+                for (column = 0; column < 10; column++)
+                {
+                    board[row, column] = ".  ";
+                }
+            }
+        }
+        static void MakeShip(int length, ref string[,] board)
+        {
+            ConsoleKeyInfo direction;
+            bool ValidInput;
+            int RowInt, ColInt;
+            string RowString, ColString;
+            do
+            {
+                PrintBoard(ref board);
+                //get location of first piece of the boat, loop until 
+                do             
+                {
+                    Console.WriteLine($"Enter row you want to place the first piece of your 1x{length} ship in");
+                    RowString = Console.ReadLine();
+                } while (!int.TryParse(RowString, out RowInt) || RowInt < 0 || RowInt > 9);
+                do               
+                {
+                    Console.WriteLine($"Enter column you want to place the first piece of your 1x{length} ship in");
+                    ColString = Console.ReadLine();
+                } while (!int.TryParse(ColString, out ColInt) || ColInt < 0 || ColInt > 9);
+                //get direction ship will go in
+
+                // set boolean variables to t/f depending on what direction the ship can fit in
+                bool CanGoLeft = ColInt - length + 1 >= 0;
+                bool CanGoRight = ColInt + length - 1 <= 9;
+                bool CanGoUp = RowInt - length + 1 >= 0;
+                bool CanGoDown = RowInt + length - 1 <= 9;
+                //output to screen sepending on what directions the ship will fit in
+                do
+                {
+                    Console.WriteLine("Do you want your ship to extend to the: ");
+                    if (CanGoLeft) Console.Write(" left(l), ");
+                    if (CanGoRight) Console.Write("right(r), ");
+                    if (CanGoUp) Console.Write("up(u), ");
+                    if (CanGoDown) Console.Write("down(d)");
+                    Console.WriteLine();
+                    //set direction to in put
+                    direction = Console.ReadKey(true);
+                    //set bool to false if input isn't possible
+                    ValidInput = (direction.Key == ConsoleKey.L && CanGoLeft) ||
+                                    (direction.Key == ConsoleKey.R && CanGoRight) ||
+                                    (direction.Key == ConsoleKey.U && CanGoUp) ||
+                                    (direction.Key == ConsoleKey.D && CanGoDown);
+                    if (ValidInput == false) Console.WriteLine("ship won't fit, enter a different direction");
+                } while (ValidInput == false);
+                switch (direction.Key)
+                {
+                    case ConsoleKey.L:
+                        for (int column = ColInt; column > ColInt - length; column--)
+                        {
+                            if (board[RowInt, column] != ".  ")
+                            {
+                                Console.Clear();
+                                ValidInput = false;
+                                Console.WriteLine("Overlapping ships, please enter a new location");
+                                break;
+                            }
+                        }
+                        break;
+                    case ConsoleKey.R:
+                        for (int column = ColInt; column < ColInt + length; column++)
+                        {
+                            if (board[RowInt, column] != ".  ")
+                            {
+                                Console.Clear();
+                                ValidInput = false;
+                                Console.WriteLine("Overlapping ships, please enter a new location");
+                                break;
+                            }
+                        }
+                        break;
+                    case ConsoleKey.U:
+                        for (int row = RowInt; row > RowInt - length; row--)
+                        {
+                            if (board[row, ColInt] != ".  ")
+                            {
+                                Console.Clear();
+                                ValidInput = false;
+                                Console.WriteLine("Overlapping ships, please enter a new location");
+                                break;
+                            }
+                        }
+                        break;
+                    case ConsoleKey.D:
+                        for (int row = RowInt; row < RowInt + length; row++)
+                        {
+                            if (board[row, ColInt] != ".  ")
+                            {
+                                Console.Clear();
+                                ValidInput = false;
+                                Console.WriteLine("Overlapping ships, please enter a new location");
+                                break;
+                            }
+                        }
+                        break;
+                }
+            } while (ValidInput == false);
+
+            switch (direction.Key)
+            {
+                case ConsoleKey.L:
+                    for (int col = ColInt; col > ColInt - length; col--)
+                        board[RowInt, col] = length + "  ";
+                    break;
+                case ConsoleKey.R:
+                    for (int col = ColInt; col < ColInt + length; col++)
+                        board[RowInt, col] = length + "  ";
+                    break;
+                case ConsoleKey.U:
+                    for (int ro = RowInt; ro > RowInt - length; ro--)
+                        board[ro, ColInt] = length + "  ";
+                    break;
+                case ConsoleKey.D:
+                    for (int ro = RowInt; ro < RowInt + length; ro++)
+                        board[ro, ColInt] = length + "  ";
+                    break;
+            }
+
+            Console.Clear();
+        }
+        static void PrintBoard(ref string[,] board)
+        {
+            Console.WriteLine();
+            Console.Write("   ");
+            for (int a = 0; a < 10; a++)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                Console.Write(a + "  ");
+            }
+            Console.WriteLine();
+            for (int row = 0; row < 10; row++)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkMagenta;
+                Console.Write(row + "  ");
+                for (int column = 0; column < 10; column++)
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write(board[row, column]);
+                }
+                Console.WriteLine();
+            }
+        }
+        static void AttackShip(ref string[,] board, ref string[,]sample)
+        {
+            int RowInt, ColInt;
+            string RowString = "n", ColString = "n";
+
+            if (board == board2) Console.WriteLine("Player 1, it's your turn to attack");
+            if (board == board1) Console.WriteLine("Player 2, it's your turn to attack");
+            do  
+            {
+                Console.WriteLine("Enter row you want to attack");
+                RowString = Console.ReadLine();
+            } while (!int.TryParse(RowString, out RowInt) || RowInt < 0 || RowInt > 9);
+            do 
+            {
+                Console.WriteLine("Enter column you want to attack");
+                ColString = Console.ReadLine();
+            } while (!int.TryParse(ColString, out ColInt) || ColInt < 0 || ColInt > 9);
+            Console.Clear();
+            Console.WriteLine($"Player attacked ({RowInt}, {ColInt}).");
+            if (board[RowInt, ColInt] == ".  ")
+            {
+                sample[RowInt, ColInt] = "   ";
+                Console.WriteLine("Miss!");
+            }
+            else
+            {
+                Console.WriteLine("Hit!");
+                board[RowInt, ColInt] = "X  ";
+                sample[RowInt, ColInt] = "X  ";
+            }
+        }
+        static void SunkShip()
+        {
+
+        }
+        static void EndGame()
+        {
+
+        }
+    }
+}
